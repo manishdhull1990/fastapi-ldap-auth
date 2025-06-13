@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from starlette.concurrency import run_in_threadpool
 from .ldap_utils import authenticate_user, get_user_group
-from .models import LoginRequest, LoginResponse
+from .models import LoginRequest, TokenResponse
+from .token_utils import create_access_tokens
 
 router = APIRouter()
 
-@router.post("/login",response_model=LoginResponse)
+@router.post("/login",response_model=TokenResponse)
 async def login_user(login: LoginRequest):
     is_valid = await run_in_threadpool(authenticate_user, login.username, login.password)
     if not is_valid:
@@ -15,8 +16,5 @@ async def login_user(login: LoginRequest):
     if not role:
         raise HTTPException(status_code=403, detail="User has no group assigned")
     
-    return LoginResponse(
-        message="Login Successful",
-        username=login.username,
-        role=role
-    )
+    token = create_access_tokens({"sub":login.username, "role":role})
+    return TokenResponse(access_token=token)
