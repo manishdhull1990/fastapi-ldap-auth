@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.orm import declarative_base
 from datetime import datetime, timezone
 
@@ -17,3 +17,4 @@ class UserToken(Base):
     refresh_expires_at = Column(DateTime(timezone=True), nullable=True) 
     ip_address = Column(String(100))
     user_agent = Column(Text)
+    is_revoked = Column(Boolean, default=False)
