@@ -37,18 +37,25 @@ def decode_token(token: str)-> dict:
                             detail = "Invalid or expired token") from e
 
 def log_token(username, role, access_token, refresh_token, expires_delta, refresh_expires, request):
-    db =  SessionLocal()
-    token = UserToken(
-        username=username,
-        role=role,
-        access_token=access_token,
-        refresh_token=refresh_token,
-        issued_at=datetime.now(timezone.utc),
-        expires_at=datetime.now(timezone.utc) + expires_delta,
-        refresh_expires_at=datetime.now(timezone.utc) + refresh_expires,
-        ip_address=request.client.host if request else None,
-        user_agent=request.headers.get("user-agent") if request else None,
-    )
-    db.add(token)
-    db.commit()
-    db.close()
+    db = None
+    close_db = False
+    try:
+        db = SessionLocal()
+        token = UserToken(
+            username=username,
+            role=role,
+            access_token=access_token,
+            refresh_token=refresh_token,
+            issued_at=datetime.now(timezone.utc),
+            expires_at=datetime.now(timezone.utc) + expires_delta,
+            refresh_expires_at=datetime.now(timezone.utc) + refresh_expires,
+            ip_address=request.client.host if request else None,
+            user_agent=request.headers.get("user-agent") if request else None,
+        )
+        db.add(token)
+        db.commit()
+    except Exception as e:
+        raise RuntimeError(f"Failed to log token: {e}")
+    finally:
+        if db:
+            db.close()
