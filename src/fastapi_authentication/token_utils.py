@@ -4,6 +4,9 @@ from fastapi import HTTPException, status
 from .config import settings
 from .models_database.token_log import UserToken
 from .database import SessionLocal
+from .redis_client import redis_client
+import uuid
+import json
 
 def _create_token(data:dict, expires_delta: timedelta)->str:
     to_encode = data.copy()
@@ -36,26 +39,70 @@ def decode_token(token: str)-> dict:
         raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
                             detail = "Invalid or expired token") from e
 
-def log_token(username, role, access_token, refresh_token, expires_delta, refresh_expires, request):
-    db = None
-    close_db = False
-    try:
-        db = SessionLocal()
-        token = UserToken(
-            username=username,
-            role=role,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            issued_at=datetime.now(timezone.utc),
-            expires_at=datetime.now(timezone.utc) + expires_delta,
-            refresh_expires_at=datetime.now(timezone.utc) + refresh_expires,
-            ip_address=request.client.host if request else None,
-            user_agent=request.headers.get("user-agent") if request else None,
-        )
-        db.add(token)
-        db.commit()
-    except Exception as e:
-        raise RuntimeError(f"Failed to log token: {e}")
-    finally:
-        if db:
-            db.close()
+# def log_token(username, role, access_token, refresh_token, expires_delta, refresh_expires, request):
+#     db = None
+#     close_db = False
+#     try:
+#         db = SessionLocal()
+#         token = UserToken(
+#             username=username,
+#             role=role,
+#             access_token=access_token,
+#             refresh_token=refresh_token,
+#             issued_at=datetime.now(timezone.utc),
+#             expires_at=datetime.now(timezone.utc) + expires_delta,
+#             refresh_expires_at=datetime.now(timezone.utc) + refresh_expires,
+#             ip_address=request.client.host if request else None,
+#             user_agent=request.headers.get("user-agent") if request else None,
+#         )
+#         db.add(token)
+#         db.commit()
+#     except Exception as e:
+#         raise RuntimeError(f"Failed to log token: {e}")
+#     finally:
+#         if db:
+#             db.close()
+
+async def log_token(username, role, access_token, refresh_token, access_expires, refresh_expires, request):
+    ip = request.client.host if request else None
+    user_agent = request.headers.get("user-agent") if request else None
+
+    issued_at = datetime.now(timezone.utc)
+    access_exp = issued_at + access_expires
+    refresh_exp = issued_at + refresh_expires
+
+    # Debug precision display
+    print("\n--- Token Timing Debug ---")
+    print("Issued at      :", issued_at.isoformat(timespec="microseconds"))
+    print("Access expires :", access_exp.isoformat(timespec="microseconds"))
+    print("Refresh expires:", refresh_exp.isoformat(timespec="microseconds"))
+    print("Access TTL (s) :", (access_exp - issued_at).total_seconds())
+    print("Refresh TTL (s):", (refresh_exp - issued_at).total_seconds())
+    print("--------------------------\n")
+
+    jti = str(uuid.uuid4())
+    access_token_key = f"access:{jti}"
+    refresh_token_key = f"refresh:{jti}"
+    lookup_key = f"refresh_lookup:{refresh_token}"
+
+    access_data = {
+        "username" : username,
+        "role" : role,
+        "issued_at": issued_at.isoformat(timespec="microseconds"),
+        "expires_at": access_exp.isoformat(timespec="microseconds"),
+        "ip": ip,
+        "user_agent": user_agent
+    }
+
+    refresh_data = {
+        "username": username,
+        "role": role,
+        "issued_at": issued_at.isoformat(timespec="microseconds"),
+        "expires_at": refresh_exp.isoformat(timespec="microseconds"),
+        "ip": ip,
+        "user_agent": user_agent,
+        "revoked": False
+    }
+    await redis_client.set(access_token_key, json.dumps(access_data), ex=access_expires)
+    await redis_client.set(refresh_token_key, json.dumps(refresh_data), ex=refresh_expires)
+    await redis_client.set(lookup_key, refresh_token_key, ex=refresh_expires)
