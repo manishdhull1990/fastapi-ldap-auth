@@ -1,0 +1,18 @@
+2025-06-20 01:25:48 | INFO | 44601afc-e7d7-4109-ad39-7c1365cfc949 | LDAP auth succeeded for user: manish |
+2025-06-20 01:25:48 | INFO | 44601afc-e7d7-4109-ad39-7c1365cfc949 | Group 'admin' found for user: manish |
+2025-06-20 01:25:48 | INFO | 44601afc-e7d7-4109-ad39-7c1365cfc949 | Token issued - user: manish, role: admin, IP: 127.0.0.1, jti: 20c548ce-2255-4e65-b6dd-f55664bc80ef, access_ttl: 60.0s, refresh_ttl: 604800.0s |
+2025-06-20 01:25:48 | INFO | 44601afc-e7d7-4109-ad39-7c1365cfc949 | Login success - user: manish, role: admin, IP: 127.0.0.1 |
+2025-06-20 01:26:03 | INFO | 6ef8fb8c-91d1-4ff3-85e6-5e89d33e7255 | LDAP auth succeeded for user: diksha |
+2025-06-20 01:26:03 | INFO | 6ef8fb8c-91d1-4ff3-85e6-5e89d33e7255 | Group 'developers' found for user: diksha |
+2025-06-20 01:26:03 | INFO | 6ef8fb8c-91d1-4ff3-85e6-5e89d33e7255 | Token issued - user: diksha, role: developers, IP: 127.0.0.1, jti: cf026ca5-2ecf-40b5-bd46-5398e84b2b63, access_ttl: 60.0s, refresh_ttl: 604800.0s |
+2025-06-20 01:26:03 | INFO | 6ef8fb8c-91d1-4ff3-85e6-5e89d33e7255 | Login success - user: diksha, role: developers, IP: 127.0.0.1 |
+2025-06-20 01:26:17 | INFO | c15f1387-1b67-4180-9e68-1caa34d65d4d | Token verified for user: manish, role: admin |
+2025-06-20 01:26:17 | INFO | c15f1387-1b67-4180-9e68-1caa34d65d4d | Admin dashboard accessed by: manish |
+2025-06-20 01:26:33 | INFO | 80806cbf-155b-49ee-b9f5-e12028070d83 | Token verified for user: diksha, role: developers |
+2025-06-20 01:26:33 | INFO | 80806cbf-155b-49ee-b9f5-e12028070d83 | Developer dashboard accessed by: diksha |
+2025-06-20 01:26:55 | INFO | 32213863-90b1-4cd8-806a-93681d35201e | Token issued - user: manish, role: admin, IP: 127.0.0.1, jti: c26dfcf7-608d-4a4f-93ad-500de1c534c1, access_ttl: 60.0s, refresh_ttl: 604800.0s |
+2025-06-20 01:26:55 | INFO | 32213863-90b1-4cd8-806a-93681d35201e | Refresh success - user: manish, new token issued, IP: 127.0.0.1 |
+2025-06-20 01:27:11 | INFO | c8ca4682-f872-4371-b059-7fd817a99a3d | Token issued - user: diksha, role: developers, IP: 127.0.0.1, jti: d7e25285-7294-4017-9a6b-2d3fa2390fba, access_ttl: 60.0s, refresh_ttl: 604800.0s |
+2025-06-20 01:27:11 | INFO | c8ca4682-f872-4371-b059-7fd817a99a3d | Refresh success - user: diksha, new token issued, IP: 127.0.0.1 |
+2025-06-20 01:27:26 | INFO | 490321ba-3b76-4b30-8e11-2a5b5884ce48 | Logout - user: manish, token revoked, IP: 127.0.0.1 |
+2025-06-20 01:27:38 | INFO | 44b5c4b2-abbd-484f-abc3-51d00ab370b8 | Logout - user: diksha, token revoked, IP: 127.0.0.1 |
